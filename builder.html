@@ -1,0 +1,371 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Pixrilic | Card Studio</title>
+    
+    <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap">
+
+    <style>
+        * { box-sizing: border-box; margin: 0; padding: 0; }
+        
+        body {
+            min-height: 100vh;
+            background: #f9f9fb;
+            font-family: "Inter", sans-serif;
+            color: #111111;
+            display: flex;
+            flex-direction: column;
+        }
+
+        /* Navigation */
+        .site-header {
+            height: 70px;
+            background: rgba(255, 255, 255, 0.8);
+            backdrop-filter: blur(20px);
+            -webkit-backdrop-filter: blur(20px);
+            border-bottom: 1px solid rgba(0, 0, 0, 0.05);
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 0 40px;
+            position: sticky;
+            top: 0;
+            z-index: 100;
+        }
+
+        .brand-logo {
+            font-size: 20px;
+            font-weight: 700;
+            letter-spacing: -0.02em;
+            text-decoration: none;
+            color: #111111;
+        }
+
+        .nav-links a {
+            text-decoration: none;
+            color: #666666;
+            font-size: 15px;
+            font-weight: 500;
+            transition: color 0.2s ease;
+        }
+
+        .nav-links a:hover { color: #111111; }
+
+        /* Workspace Layout Split */
+        .workspace {
+            flex: 1;
+            display: grid;
+            grid-template-columns: 400px 1fr;
+        }
+
+        /* Left Control Panel (Google Sites Style) */
+        .control-panel {
+            background: #ffffff;
+            border-right: 1px solid rgba(0, 0, 0, 0.05);
+            padding: 30px 24px;
+            display: flex;
+            flex-direction: column;
+            gap: 24px;
+            height: calc(100vh - 70px);
+            overflow-y: auto;
+        }
+
+        .panel-title {
+            font-size: 18px;
+            font-weight: 600;
+            letter-spacing: -0.01em;
+            margin-bottom: 4px;
+        }
+
+        .input-group {
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+        }
+
+        .input-group label {
+            font-size: 12px;
+            font-weight: 600;
+            color: #666666;
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+        }
+
+        .input-group input {
+            width: 100%;
+            padding: 12px;
+            border: 1px solid rgba(0, 0, 0, 0.1);
+            border-radius: 8px;
+            font-family: inherit;
+            font-size: 14px;
+            color: #111111;
+            transition: border-color 0.2s;
+        }
+
+        .input-group input:focus {
+            outline: none;
+            border-color: #111111;
+        }
+
+        .action-hub {
+            margin-top: auto;
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+        }
+
+        .btn {
+            width: 100%;
+            padding: 14px;
+            border-radius: 10px;
+            font-family: inherit;
+            font-size: 14px;
+            font-weight: 500;
+            cursor: pointer;
+            text-align: center;
+            border: none;
+            transition: opacity 0.2s, transform 0.1s;
+        }
+
+        .btn-primary {
+            background: #111111;
+            color: #ffffff;
+        }
+
+        .btn-primary:hover { opacity: 0.9; }
+        .btn-primary:active { transform: scale(0.98); }
+
+        /* Right Canvas Preview Window */
+        .preview-canvas {
+            display: grid;
+            place-items: center;
+            padding: 40px;
+            background: #f4f4f6;
+            position: relative;
+        }
+
+        /* Premium Card Component styling linked directly to live values */
+        .premium-card {
+            width: 100%;
+            max-width: var(--c-width, 380px);
+            background: var(--c-bg, #ffffff);
+            border-radius: var(--c-radius, 24px);
+            box-shadow: 0 30px 60px -15px rgba(0,0,0,0.08), 0 0 0 1px rgba(0,0,0,0.02);
+            padding: 24px;
+            display: flex;
+            flex-direction: column;
+            gap: 20px;
+            text-decoration: none;
+            transition: transform 0.4s cubic-bezier(0.16, 1, 0.3, 1), box-shadow 0.4s cubic-bezier(0.16, 1, 0.3, 1);
+            cursor: pointer;
+        }
+
+        .premium-card:hover {
+            transform: translateY(-6px);
+            box-shadow: 0 40px 80px -20px rgba(0,0,0,0.12), 0 0 0 1px rgba(0,0,0,0.02);
+        }
+
+        .image-container {
+            width: 100%;
+            overflow: hidden;
+            border-radius: var(--c-img-radius, 16px);
+            background: rgba(0, 0, 0, 0.01);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .product-image {
+            width: 100%;
+            height: auto;
+            max-height: 380px;
+            object-fit: contain;
+            transition: transform 0.6s cubic-bezier(0.16, 1, 0.3, 1);
+        }
+
+        .premium-card:hover .product-image {
+            transform: scale(1.02);
+        }
+
+        .info-container {
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-start;
+            gap: 16px;
+            color: var(--c-text, #111111);
+        }
+
+        .product-title {
+            font-size: 22px;
+            font-weight: 600;
+            line-height: 1.3;
+            letter-spacing: -0.01em;
+        }
+
+        .product-price {
+            font-size: 18px;
+            font-weight: 400;
+            opacity: 0.8;
+            line-height: 1.3;
+            white-space: nowrap;
+        }
+
+        .action-button {
+            width: 100%;
+            border: none;
+            outline: none;
+            background: var(--c-btn-bg, #111111);
+            color: var(--c-btn-text, #ffffff);
+            font-size: 15px;
+            font-weight: 500;
+            padding: 14px 24px;
+            border-radius: var(--c-btn-radius, 12px);
+            cursor: pointer;
+            text-align: center;
+            letter-spacing: -0.005em;
+        }
+
+        @media(max-width: 900px) {
+            .workspace { grid-template-columns: 1fr; }
+            .control-panel { height: auto; }
+        }
+    </style>
+</head>
+<body>
+
+    <!-- Top Navigation -->
+    <header class="site-header">
+        <a href="index.html" class="brand-logo">Pixrilic Studio</a>
+        <nav class="nav-links">
+            <a href="index.html">← Back to Shop</a>
+        </nav>
+    </header>
+
+    <!-- Interactive Creator App -->
+    <main class="workspace">
+        
+        <!-- Interactive Form Fields Configuration Panel -->
+        <section class="control-panel">
+            <div>
+                <h1 class="panel-title">Card Properties</h1>
+                <p style="font-size: 13px; color:#666;">Change values below to live-render the preview layout.</p>
+            </div>
+            
+            <div class="input-group">
+                <label>Product Title</label>
+                <input type="text" id="inTitle" value="BMW Graphics">
+            </div>
+
+            <div class="input-group">
+                <label>Price</label>
+                <input type="text" id="inPrice" value="$5">
+            </div>
+
+            <div class="input-group">
+                <label>Image Link</label>
+                <input type="text" id="inImage" value="https://cdn.beacons.ai/user_content/ZabXGSrJkKhjmT6R1QzEjcN6vbR2/referenced_images/generated-images__store__product-image__0dccb7f0-9826-45be-a348-c55895434d3b__42e1e4f3-e0bd-497a-bea9-c41f8686c4b8.webp?t=1783855764587">
+            </div>
+
+            <div class="input-group">
+                <label>Destination Link</label>
+                <input type="text" id="inLink" value="https://shop.beacons.ai/pixrilic/0dccb7f0-9826-45be-a348-c55895434d3b">
+            </div>
+
+            <div class="input-group">
+                <label>Button Text</label>
+                <input type="text" id="inBtnText" value="View Product">
+            </div>
+
+            <div class="input-group">
+                <label>Card Base Color</label>
+                <input type="text" id="inCardBg" value="#ffffff">
+            </div>
+
+            <div class="input-group">
+                <label>Button Hex Accent</label>
+                <input type="text" id="inBtnBg" value="#111111">
+            </div>
+
+            <div class="action-hub">
+                <button class="btn btn-primary" onclick="copyCardMarkup()">Copy Raw Production Code</button>
+            </div>
+        </section>
+
+        <!-- Real-Time Rendering Output Window Canvas -->
+        <section class="preview-canvas" id="canvasFrame">
+            <a href="#" id="viewCard" class="premium-card" onclick="event.preventDefault();">
+                <div class="image-container">
+                    <img id="viewImg" class="product-image" alt="Product Image Preview">
+                </div>
+                <div class="info-container">
+                    <h2 id="viewTitle" class="product-title"></h2>
+                    <span id="viewPrice" class="product-price"></span>
+                </div>
+                <button id="viewBtn" class="action-button"></button>
+            </a>
+        </section>
+
+    </main>
+
+    <!-- Dynamic Mapping Layout Core Engine -->
+    <script>
+        const inputs = {
+            title: document.getElementById('inTitle'),
+            price: document.getElementById('inPrice'),
+            image: document.getElementById('inImage'),
+            link: document.getElementById('inLink'),
+            btnText: document.getElementById('inBtnText'),
+            cardBg: document.getElementById('inCardBg'),
+            btnBg: document.getElementById('inBtnBg')
+        };
+
+        const view = {
+            card: document.getElementById('viewCard'),
+            img: document.getElementById('viewImg'),
+            title: document.getElementById('viewTitle'),
+            price: document.getElementById('viewPrice'),
+            btn: document.getElementById('viewBtn')
+        };
+
+        function renderUpdate() {
+            view.title.textContent = inputs.title.value;
+            view.price.textContent = inputs.price.value;
+            view.img.src = inputs.image.value;
+            view.btn.textContent = inputs.btnText.value;
+            view.card.href = inputs.link.value;
+
+            // Update real-time component CSS custom configurations
+            view.card.style.setProperty('--c-bg', inputs.cardBg.value);
+            view.card.style.setProperty('--c-btn-bg', inputs.btnBg.value);
+        }
+
+        // Attach dynamic listeners to inputs for live rendering updates
+        Object.values(inputs).forEach(input => {
+            input.addEventListener('input', renderUpdate);
+        });
+
+        // Initialize state engine
+        renderUpdate();
+
+        // One-Click Clean Export Module Container
+        function copyCardMarkup() {
+            const productionCode = `
+<a href="${inputs.link.value}" target="_blank" style="width: 100%; max-width: 380px; background: ${inputs.cardBg.value}; border-radius: 24px; box-shadow: 0 30px 60px -15px rgba(0,0,0,0.08), 0 0 0 1px rgba(0,0,0,0.02); padding: 24px; display: flex; flex-direction: column; gap: 20px; text-decoration: none; font-family: 'Inter', sans-serif; color: #111111; transition: transform 0.4s ease; cursor: pointer;" onmouseover="this.style.transform='translateY(-6px)'" onmouseout="this.style.transform='none'">
+    <div style="width: 100%; overflow: hidden; border-radius: 16px; background: rgba(0, 0, 0, 0.01); display: flex; align-items: center; justify-content: center;">
+        <img src="${inputs.image.value}" alt="Product Visual" style="width: 100%; height: auto; max-height: 400px; object-fit: contain;">
+    </div>
+    <div style="display: flex; justify-content: space-between; align-items: flex-start; gap: 16px;">
+        <h2 style="font-size: 22px; font-weight: 600; line-height: 1.3; letter-spacing: -0.01em; margin:0;">${inputs.title.value}</h2>
+        <span style="font-size: 18px; font-weight: 400; opacity: 0.8; line-height: 1.3; white-space: nowrap;">${inputs.price.value}</span>
+    </div>
+    <button style="width: 100%; border: none; outline: none; background: ${inputs.btnBg.value}; color: #ffffff; font-size: 15px; font-weight: 500; padding: 14px 24px; border-radius: 12px; cursor: pointer; text-align: center; letter-spacing: -0.005em;" onclick="event.preventDefault(); window.open('${inputs.link.value}', '_blank');">${inputs.btnText.value}</button>
+</a>`;
+
+            navigator.clipboard.writeText(productionCode.trim());
+            alert("Premium Card production HTML copied to clipboard! You can paste it straight into your index.html page grid layout.");
+        }
+    </script>
+</body>
+</html>
