@@ -1,4 +1,4 @@
-<!DOCTYPE html>
+here<!DOCTYPE html>
 <html lang="en">
 <head>
     <meta charset="UTF-8">
@@ -84,6 +84,7 @@
 
         .nav-links {
             display: flex;
+            align-items: center;
             gap: 24px;
         }
 
@@ -95,8 +96,21 @@
             transition: color 0.2s ease;
         }
 
-        .nav-links a:hover {
+        .nav-links a:hover:not(.nav-builder) {
             color: var(--TEXT_COLOR_MAIN);
+        }
+
+        /* Studio Builder Button Style */
+        .nav-builder {
+            background: var(--TEXT_COLOR_MAIN);
+            color: #ffffff !important;
+            padding: 8px 16px;
+            border-radius: 8px;
+            transition: opacity 0.2s ease;
+        }
+
+        .nav-builder:hover {
+            opacity: 0.9;
         }
 
         /* Responsive Grid Container */
@@ -211,9 +225,10 @@
 
     <!-- Site Navigation Top Component -->
     <header class="site-header">
-        <a href="#" class="brand-logo">Pixrilic</a>
+        <a href="index.html" class="brand-logo">Pixrilic</a>
         <nav class="nav-links">
-            <a href="#">Shop</a>
+            <a href="index.html">Shop</a>
+            <a href="builder.html" class="nav-builder">Studio Builder</a>
             <a href="https://beacons.ai/pixrilic" target="_blank">Contact</a>
         </nav>
     </header>
@@ -234,7 +249,7 @@
                 <button class="action-button" onclick="event.preventDefault(); window.open(this.parentElement.href, '_blank');">View Product</button>
             </a>
 
-            <!-- CARD 2: Duplicate block below to easily add more premium items -->
+            <!-- CARD 2: Paste new cards generated from builder.html below this line -->
 
         </div>
     </main>
