@@ -1,23 +1,243 @@
 <!DOCTYPE html>
-<html>
+<html lang="en">
 <head>
-  <meta charset="UTF-8">
-  <title>Pixrilic</title>
-  <link rel="stylesheet" href="css/style.css">
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Pixrilic | Creative Store</title>
+    
+    <!-- ============= CUSTOMIZE SITE STYLES HERE ============= -->
+    <style>
+        :root {
+            /* Global Colors & Canvas */
+            --BG_COLOR: #f9f9fb;
+            --NAV_BG: rgba(255, 255, 255, 0.75);
+            --TEXT_COLOR_MAIN: #111111;
+            --TEXT_MUTED: #666666;
+
+            /* Premium Product Card UI Specs */
+            --CARD_COLOR: #ffffff;
+            --BUTTON_COLOR: #111111;
+            --TEXT_COLOR: #111111;
+            --BUTTON_TEXT_COLOR: #ffffff;
+
+            --TITLE_FONT: "Inter", sans-serif;
+            --PRICE_FONT: "Inter", sans-serif;
+            --BUTTON_FONT: "Inter", sans-serif;
+
+            --TITLE_WEIGHT: 600;
+            --PRICE_WEIGHT: 400;
+            --BUTTON_WEIGHT: 500;
+
+            --TITLE_SIZE: 20px;
+            --PRICE_SIZE: 16px;
+            --BUTTON_SIZE: 14px;
+
+            --CARD_RADIUS: 20px;
+            --IMAGE_RADIUS: 14px;
+            --BUTTON_RADIUS: 10px;
+            --BUTTON_PADDING: 12px 20px;
+
+            --SHADOW: 0 20px 40px -10px rgba(0,0,0,0.05), 0 0 0 1px rgba(0,0,0,0.02);
+        }
+    </style>
+    <!-- ========================================== -->
+
+    <!-- Auto-Load Premium Google Fonts -->
+    <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap">
+
+    <style>
+        * { box-sizing: border-box; margin: 0; padding: 0; }
+        
+        body {
+            min-height: 100vh;
+            background: var(--BG_COLOR);
+            font-family: "Inter", sans-serif;
+            color: var(--TEXT_COLOR_MAIN);
+            padding-top: 100px; /* Space for fixed navigation bar */
+        }
+
+        /* Fixed Premium Header */
+        .site-header {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 70px;
+            background: var(--NAV_BG);
+            backdrop-filter: blur(20px);
+            -webkit-backdrop-filter: blur(20px);
+            border-bottom: 1px solid rgba(0, 0, 0, 0.05);
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 0 40px;
+            z-index: 100;
+        }
+
+        .brand-logo {
+            font-size: 20px;
+            font-weight: 700;
+            letter-spacing: -0.02em;
+            text-decoration: none;
+            color: var(--TEXT_COLOR_MAIN);
+        }
+
+        .nav-links {
+            display: flex;
+            gap: 24px;
+        }
+
+        .nav-links a {
+            text-decoration: none;
+            color: var(--TEXT_MUTED);
+            font-size: 15px;
+            font-weight: 500;
+            transition: color 0.2s ease;
+        }
+
+        .nav-links a:hover {
+            color: var(--TEXT_COLOR_MAIN);
+        }
+
+        /* Responsive Grid Container */
+        .store-container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 40px 20px;
+        }
+
+        .grid-layout {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
+            gap: 30px;
+            justify-content: center;
+        }
+        
+        /* Premium Card Layout Component */
+        .premium-card {
+            background: var(--CARD_COLOR);
+            border-radius: var(--CARD_RADIUS);
+            box-shadow: var(--SHADOW);
+            padding: 20px;
+            display: flex;
+            flex-direction: column;
+            gap: 16px;
+            text-decoration: none;
+            transition: transform 0.4s cubic-bezier(0.16, 1, 0.3, 1), box-shadow 0.4s cubic-bezier(0.16, 1, 0.3, 1);
+            cursor: pointer;
+            user-select: none;
+        }
+
+        .premium-card:hover {
+            transform: translateY(-6px);
+            box-shadow: 0 30px 60px -15px rgba(0,0,0,0.1), 0 0 0 1px rgba(0,0,0,0.02);
+        }
+
+        .image-container {
+            width: 100%;
+            overflow: hidden;
+            border-radius: var(--IMAGE_RADIUS);
+            background: rgba(0, 0, 0, 0.01);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .product-image {
+            width: 100%;
+            height: auto;
+            max-height: 320px;
+            object-fit: contain;
+            transition: transform 0.6s cubic-bezier(0.16, 1, 0.3, 1);
+        }
+
+        .premium-card:hover .product-image {
+            transform: scale(1.02);
+        }
+
+        .info-container {
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-start;
+            gap: 12px;
+            color: var(--TEXT_COLOR);
+        }
+
+        .product-title {
+            font-family: var(--TITLE_FONT);
+            font-size: var(--TITLE_SIZE);
+            font-weight: var(--TITLE_WEIGHT);
+            line-height: 1.3;
+            letter-spacing: -0.01em;
+        }
+
+        .product-price {
+            font-family: var(--PRICE_FONT);
+            font-size: var(--PRICE_SIZE);
+            font-weight: var(--PRICE_WEIGHT);
+            opacity: 0.8;
+            line-height: 1.3;
+            white-space: nowrap;
+        }
+
+        .action-button {
+            width: 100%;
+            border: none;
+            outline: none;
+            background: var(--BUTTON_COLOR);
+            color: var(--BUTTON_TEXT_COLOR);
+            font-family: var(--BUTTON_FONT);
+            font-size: var(--BUTTON_SIZE);
+            font-weight: var(--BUTTON_WEIGHT);
+            padding: var(--BUTTON_PADDING);
+            border-radius: var(--BUTTON_RADIUS);
+            cursor: pointer;
+            text-align: center;
+            letter-spacing: -0.005em;
+            transition: opacity 0.2s ease, transform 0.2s ease;
+        }
+
+        .action-button:hover { opacity: 0.9; }
+        .action-button:active { transform: scale(0.98); }
+
+        /* Mobile Screen Optimization */
+        @media(max-width: 600px) {
+            .site-header { padding: 0 20px; }
+            .nav-links { gap: 16px; }
+        }
+    </style>
 </head>
 <body>
 
-<header>
-  <h1>PIXRILIC</h1>
-</header>
+    <!-- Site Navigation Top Component -->
+    <header class="site-header">
+        <a href="#" class="brand-logo">Pixrilic</a>
+        <nav class="nav-links">
+            <a href="#">Shop</a>
+            <a href="https://beacons.ai/pixrilic" target="_blank">Contact</a>
+        </nav>
+    </header>
 
-<div class="card">
-  <img src="images/product.jpg" alt="Product">
-  <h2>BMW M4 GT3 Design</h2>
-  <p>$4.99</p>
-  <button>Buy Now</button>
-</div>
+    <!-- Main Content Showcase Layout -->
+    <main class="store-container">
+        <div class="grid-layout">
 
-<script src="js/script.js"></script>
+            <!-- CARD 1: BMW Graphics Package -->
+            <a href="https://shop.beacons.ai/pixrilic/0dccb7f0-9826-45be-a348-c55895434d3b" target="_blank" class="premium-card">
+                <div class="image-container">
+                    <img class="product-image" src="https://cdn.beacons.ai/user_content/ZabXGSrJkKhjmT6R1QzEjcN6vbR2/referenced_images/generated-images__store__product-image__0dccb7f0-9826-45be-a348-c55895434d3b__42e1e4f3-e0bd-497a-bea9-c41f8686c4b8.webp?t=1783855764587" alt="BMW Graphics Pack">
+                </div>
+                <div class="info-container">
+                    <h2 class="product-title">BMW Graphics</h2>
+                    <span class="product-price">$5</span>
+                </div>
+                <button class="action-button" onclick="event.preventDefault(); window.open(this.parentElement.href, '_blank');">View Product</button>
+            </a>
+
+            <!-- CARD 2: Duplicate block below to easily add more premium items -->
+
+        </div>
+    </main>
+
 </body>
 </html>
