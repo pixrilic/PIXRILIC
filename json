@@ -1,0 +1,24 @@
+{
+  "projectId": "site_abc123",
+  "ownerId": "user_auth_9988",
+  "settings": {
+    "siteName": "My Portfolio",
+    "customDomain": "portfolio.mybrand.com",
+    "seo": { "title": "Home", "description": "Welcome to my portfolio website." }
+  },
+  "theme": {
+    "primaryColor": "#3b82f6",
+    "fontFamily": "Inter",
+    "borderRadius": "12px",
+    "mode": "dark"
+  },
+  "pages": {
+    "home": {
+      "slug": "index",
+      "layout": [
+        { "id": "sec_001", "type": "hero", "props": { "heading": "Welcome", "cta": "Discover More" } },
+        { "id": "sec_002", "type": "columns", "props": { "count": 3, "content": ["Text A", "Text B", "Text C"] } }
+      ]
+    }
+  }
+}
