@@ -1,67 +1,93 @@
-import React, { createContext, useContext, useState, useEffect } from 'react';
-import { useHistory } from '../hooks/useHistory';
+// src/context/BuilderContext.jsx
+import React, { createContext, useContext, useState, useEffect, useCallback } from 'react';
+import { db, auth } from '../firebase/config';
+import { doc, setDoc, onSnapshot } from 'firebase/firestore';
 
-const BuilderContext = createContext(null);
+const BuilderContext = createContext();
 
-const defaultProject = {
-  projectId: "project_01",
-  settings: { name: "Untitled Site", viewMode: "desktop" },
-  theme: { primaryColor: "#3b82f6", borderRadius: "8px", font: "font-sans" },
-  layout: [
-    { id: "sec_hero", type: "Hero Banner", props: { heading: "Welcome to My Site", subheading: "Click to start editing this beautiful workspace." } }
-  ]
-};
+export const BuilderProvider = ({ children, siteId }) => {
+  const [pages, setPages] = useState([{ id: 'home', title: 'Home', sections: [] }]);
+  const [activePageId, setActivePageId] = useState('home');
+  const [selectedElementId, setSelectedElementId] = useState(null);
+  const [previewMode, setPreviewMode] = useState('desktop'); // desktop, tablet, mobile
+  const [isEditMode, setIsEditMode] = useState(true);
+  const [themeMode, setThemeMode] = useState('light'); // light, dark
+  
+  // Global Styling System
+  const [theme, setTheme] = useState({
+    fontFamily: 'Inter, sans-serif',
+    primaryColor: '#3b82f6',
+    backgroundColor: '#ffffff',
+    textColor: '#1f2937',
+    borderRadius: '12px',
+    spacing: '24px'
+  });
 
-export const BuilderProvider = ({ children }) => {
-  const { state: layout, set: setLayout, undo, redo, canUndo, canRedo } = useHistory(defaultProject.layout);
-  const [theme, setTheme] = useState(defaultProject.theme);
-  const [settings, setSettings] = useState(defaultProject.settings);
-  const [selectedId, setSelectedId] = useState(null);
+  // History Trackers
+  const [history, setHistory] = useState([]);
+  const [historyIndex, setHistoryIndex] = useState(-1);
 
-  // Auto-Save Mocking Pipeline
+  // Load Realtime Data from Firestore
   useEffect(() => {
-    const delayDebounce = setTimeout(() => {
-      console.log("Auto-saving active layout snapshot directly to cloud storage engine...");
-    }, 1500);
-    return () => clearTimeout(delayDebounce);
-  }, [layout, theme, settings]);
+    if (!siteId) return;
+    const docRef = doc(db, 'sites', siteId);
+    const unsubscribe = onSnapshot(docRef, (docSnap) => {
+      if (docSnap.exists()) {
+        const data = docSnap.data();
+        setPages(data.pages || []);
+        setTheme(data.theme || {});
+      }
+    });
+    return () => unsubscribe();
+  }, [siteId]);
 
-  const addSection = (type) => {
-    const newSection = {
-      id: `sec_${Date.now()}`,
-      type,
-      props: type === "Text" ? { text: "Editable paragraph structure goes here." } :
-             type === "FAQ" ? { question: "Frequently Asked Question?", answer: "The answer shows up down here seamlessly." } :
-             { heading: "Custom Header Banner", text: "Editable body layout description text blocks." }
-    };
-    setLayout([...layout, newSection]);
-    setSelectedId(newSection.id);
+  // Deep Snapshot Saver for Undo/Redo Engine
+  const pushToHistory = useCallback((newPages) => {
+    const nextHistory = history.slice(0, historyIndex + 1);
+    setHistory([...nextHistory, JSON.stringify(newPages)]);
+    setHistoryIndex(nextHistory.length);
+  }, [history, historyIndex]);
+
+  const updateSections = (updater) => {
+    const updatedPages = pages.map((page) => {
+      if (page.id === activePageId) {
+        const nextSections = typeof updater === 'function' ? updater(page.sections) : updater;
+        return { ...page, sections: nextSections };
+      }
+      return page;
+    });
+    setPages(updatedPages);
+    pushToHistory(updatedPages);
+    
+    // Auto-Save implementation
+    if (auth.currentUser && siteId) {
+      setDoc(doc(db, 'sites', siteId), { pages: updatedPages, theme }, { merge: true });
+    }
   };
 
-  const updateSectionProps = (id, newProps) => {
-    setLayout(layout.map(sec => sec.id === id ? { ...sec, props: { ...sec.props, ...newProps } } : sec));
+  const undo = () => {
+    if (historyIndex > 0) {
+      const prevIndex = historyIndex - 1;
+      setHistoryIndex(prevIndex);
+      setPages(JSON.parse(history[prevIndex]));
+    }
   };
 
-  const deleteSection = (id) => {
-    setLayout(layout.filter(sec => sec.id !== id));
-    if (selectedId === id) setSelectedId(null);
-  };
-
-  const moveSection = (index, direction) => {
-    const nextIndex = index + direction;
-    if (nextIndex < 0 || nextIndex >= layout.length) return;
-    const updated = [...layout];
-    const temp = updated[index];
-    updated[index] = updated[nextIndex];
-    updated[nextIndex] = temp;
-    setLayout(updated);
+  const redo = () => {
+    if (historyIndex < history.length - 1) {
+      const nextIndex = historyIndex + 1;
+      setHistoryIndex(nextIndex);
+      setPages(JSON.parse(history[nextIndex]));
+    }
   };
 
   return (
     <BuilderContext.Provider value={{
-      layout, setLayout, undo, redo, canUndo, canRedo,
-      theme, setTheme, settings, setSettings, selectedId, setSelectedId,
-      addSection, updateSectionProps, deleteSection, moveSection
+      pages, updateSections, activePageId, setActivePageId,
+      selectedElementId, setSelectedElementId, previewMode, setPreviewMode,
+      isEditMode, setIsEditMode, theme, setTheme, undo, redo,
+      canUndo: historyIndex > 0, canRedo: historyIndex < history.length - 1,
+      themeMode, setThemeMode
     }}>
       {children}
     </BuilderContext.Provider>
